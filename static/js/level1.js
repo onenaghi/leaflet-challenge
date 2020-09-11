@@ -36,3 +36,26 @@ function getStyle(sig){
     };
 }
 
+// Connect geo data and store in API
+const url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/1.0_month.geojson';
+
+// Grab the data with d3 and reason geojson
+d3.json(url).then( 
+    jsonData => {
+        console.log(jsonData.features);
+
+        jsonData.features.forEach(response => {
+            L.circle([response.geometry.coordinates[1], response.geometry.coordinates[0]],
+                {
+                    fillOpacity: .65,
+                    // color: getStyle(response.properties.sig),
+                    fillColor: getStyle(response.properties.sig),
+                    radius: response.properties.mag **3*1000,
+                    stroke:false
+                }
+        ).bindPopup(`<h1>Earthquake: ${response.properties.place}</h1> <hr>
+                    <h3>Time: ${new Date(response.properties.time)}</h3> <hr>
+                    <h3>Magnitude: ${response.properties.mag}</h3> <hr>
+                    <h3>Significance:: ${response.properties.sig}</h3>`)
+                    .addTo(myMap);
+    })
